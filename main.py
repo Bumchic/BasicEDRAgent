@@ -1,6 +1,7 @@
 from Evtx import Evtx
 from os import path, environ
 from robocopy import robocopy
+from requests import post
 
 def main():
     sysmon_dest_path = path.join(environ['USERPROFILE'], 'Desktop', 'sysmon')
@@ -13,6 +14,8 @@ def main():
             print('<Events>')
             for record in log.records():
                 print(record.xml())
+                payload = {"event": record.xml()}
+                post('http://127.0.0.1:8000/api/event', )
             print('</Events>')
 
         
