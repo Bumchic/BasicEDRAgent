@@ -8,12 +8,14 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
+    { name = "py-robocopy" },
     { name = "python-evtx" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.14.3" },
+    { name = "py-robocopy", specifier = ">=0.0.5" },
     { name = "python-evtx", specifier = ">=0.8.1" },
 ]
 
@@ -35,6 +37,15 @@ name = "hexdump"
 version = "3.3"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/55/b3/279b1d57fa3681725d0db8820405cdcb4e62a9239c205e4ceac4391c78e4/hexdump-3.3.zip", hash = "sha256:d781a43b0c16ace3f9366aade73e8ad3a7bd5137d58f0b45ab2d3f54876f20db", size = 12658, upload-time = "2016-01-22T14:40:19.589Z" }
+
+[[package]]
+name = "py-robocopy"
+version = "0.0.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/37/5e750cb7ab29d3976205fc4f6ff5ace8dee21177a0ded48043e7d8e20fce/py-robocopy-0.0.5.tar.gz", hash = "sha256:6760a6738e5eccda8e912b24331c4f7c6226803373890403e3a99738b72cdade", size = 7105, upload-time = "2023-07-02T19:08:59.448Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fc/a9/d5778b2dc32ccfbfd799a50d3f0f573042deddde91a6f36f90e41fdcca47/py_robocopy-0.0.5-py3-none-any.whl", hash = "sha256:7c8a6d6bfadcfbeaeddf1c37eac1fffc825ba3e5f4cf0b15e2e9920d8cb49a54", size = 6888, upload-time = "2023-07-02T19:08:57.789Z" },
+]
 
 [[package]]
 name = "python-evtx"
