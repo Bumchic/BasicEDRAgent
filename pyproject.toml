@@ -5,5 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12.3"
 dependencies = [
+    "beautifulsoup4>=4.14.3",
     "python-evtx>=0.8.1",
 ]
+[tool.uv]
+package = true
