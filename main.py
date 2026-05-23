@@ -22,15 +22,19 @@ async def main():
                 robocopy.copy(sysmon_src_path, sysmon_dest_path, sysmon_file_name)
                 with Evtx.Evtx(filename=path.join(sysmon_dest_path, sysmon_file_name)) as log:
                     # header = log.get_file_header()
+                    count = 0
                     for record in log.records():
                         event = record.lxml()
                         soup = BeautifulSoup(etree.tostring(event), features="xml")    
                         payload = {"event": soup.__str__()}
                         await socket.send(message=json.dumps(payload), text= True)
-                        break
+                        if count > 300:
+                            break
+                        count = count + 1
                     break
                     sleep(30)
                 break
+        await socket.close()
 
         
         
