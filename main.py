@@ -1,4 +1,5 @@
 import websockets
+import requests
 from Evtx import Evtx
 from os import path, environ
 from lxml import etree
@@ -8,6 +9,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 import asyncio
 import json
+import hashlib
 
 
 async def main():
@@ -16,8 +18,16 @@ async def main():
     sysmon_src_path = path.abspath('C:\\Windows\\System32\\winevt\\Logs')
     keyword = ['whoami', 'tasklist', 'quser']
     extension = ['.bat', '.cmd', '.rar']
+    username = input()
+    password = str(input())
+    passwordhashed = hashlib.sha1(password.encode('utf-8'))
     try: 
-        async with websockets.connect("ws://127.0.0.1:8000/ws") as socket:
+        cred = {
+            'username': username,
+            'password': passwordhashed
+        }
+        requests.post(url='http://127.0.0.1:8000', json=cred)
+        async with websockets.connect(f"ws://127.0.0.1:8000/ws?token=123") as socket:
             while True:
                 robocopy.copy(sysmon_src_path, sysmon_dest_path, sysmon_file_name)
                 with Evtx.Evtx(filename=path.join(sysmon_dest_path, sysmon_file_name)) as log:
