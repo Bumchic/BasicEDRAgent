@@ -11,7 +11,7 @@ import json
 import hashlib
 
 
-def get_token(username: str, password: str) -> websockets.ClientConnection:
+def get_token(username: str, password: str) -> str:
     cred = {"username": username, "password": password}
     res = requests.post(url="http://127.0.0.1:8000/auth", json=cred)
     if res.status_code != 200:
@@ -29,28 +29,35 @@ async def main():
     password = input("input password: ")
     passwordhashed = hashlib.sha1(password.encode("utf-8"))
     passwordhashedhex = passwordhashed.hexdigest()
-    #token = get_token(username=username, password=passwordhashedhex)
+    #
     try:
-        async for socket in websockets.connect(f"ws://127.0.0.1:8000/ws?token={get_token(username=username, password=passwordhashedhex)}"):
+        while True:
             try:
-                with Evtx.Evtx(
-                        filename=path.join(sysmon_src_path, sysmon_file_name)
-                    ) as log:
-                    while True:
-                            # header = log.get_file_header()
-                            print('reading logs...')
-                            for record in log.records():
-                                event = record.lxml()
-                                soup = BeautifulSoup(etree.tostring(event), features="xml")
-                                payload = {"event": soup.__str__()}
-                                await socket.send(message=json.dumps(payload), text=True)
-                                await socket.recv()
-                            break
+                print('authorizing')
+                token = get_token(username=username, password=passwordhashedhex)
+                serveraddr = f"ws://127.0.0.1:8000/ws?token={token}"
+                print(f'connecting to {serveraddr}')
+                async with websockets.connect(serveraddr) as socket:
+                        with Evtx.Evtx(
+                                filename=path.join(sysmon_src_path, sysmon_file_name)
+                            ) as log:
+                            while True:
+                                    # header = log.get_file_header()
+                                    print('reading logs...')
+                                    for record in log.records():
+                                        event = record.lxml()
+                                        soup = BeautifulSoup(etree.tostring(event), features="xml")
+                                        payload = {"event": soup.__str__()}
+                                        await socket.send(message=json.dumps(payload), text=True)
+                                        await socket.recv()
+                                    break
             except websockets.exceptions.ConnectionClosed as e:
                 print('diconnected exception: ' + e.__str__())
                 print('attempting reconnection')
-                sleep(5)
                 continue
+            except Exception as e:
+                 print('critical: ' + e.__str__())
+                 break
     except Exception as e:
         print(f"Error: {e}")
 
