@@ -12,7 +12,6 @@ from time import sleep
 from bs4 import BeautifulSoup
 import asyncio
 import json
-import hashlib
 import datetime
 from robocopy import robocopy
 from win32evtlog import EvtSubscribe
@@ -20,8 +19,8 @@ import win32evtlog
 import time
 import queue
 
-serverhost = "10.0.2.15"
-# serverhost = "127.0.0.1"
+# serverhost = "10.0.2.15"
+serverhost = "127.0.0.1"
 serverport = 8000
 serveraddr = f"{serverhost}:{serverport}"
 
@@ -43,8 +42,6 @@ async def main():
     sysmon_src_path = path.abspath("C:\\Windows\\System32\\winevt\\Logs")
     username = input("input username: ")
     password = input("input password: ")
-    passwordhashed = hashlib.sha1(password.encode("utf-8"))
-    passwordhashedhex = passwordhashed.hexdigest()
     # loop = asyncio.get_running_loop()
     #
     q = queue.Queue()
@@ -52,58 +49,13 @@ async def main():
         while True:
             try:
                 print("authorizing")
-                token = get_token(username=username, password=passwordhashedhex)
+                token = get_token(username=username, password=password)
                 url = f"ws://{serveraddr}/ws?token={token}"
                 print(f"connecting to {url}")
                 async with websockets.connect(url) as socket:
                     today = datetime.datetime.now().date()
                     loop = asyncio.get_running_loop()
-                    # async def cuteventfromtoday():
-                    #     with Evtx.Evtx(
-                    #         filename=path.join(sysmon_dest_name, sysmon_file_name),
-                    #     ) as log:
-                    #         for record in log.records():
-                    #             event = record.lxml()
-                    #             soup = BeautifulSoup(
-                    #                 etree.tostring(event), features="xml"
-                    #             )
-                    #             timecreated = str(
-                    #                 soup.find("TimeCreated").get("SystemTime")  # type:ignore
-                    #             )  # type: ignore
-                    #             timecreated_date = timecreated.split(" ")[0]
-                    #             timecreated_date_split = timecreated_date.split("-")
-                    #             year = int(timecreated_date_split[0])
-                    #             month = int(timecreated_date_split[1])
-                    #             day = int(timecreated_date_split[2])
-                    #             datetime_timecreated = datetime.datetime(
-                    #                 year=year, month=month, day=day
-                    #             )
-                    #             if datetime_timecreated.date() < today:
-                    #                 print(timecreated)
-                    #                 continue
-                    #             print(datetime_timecreated.date())
-                    #             print(today)
-                    #         pass
 
-                    # async def readandsendlog():
-                    #     with Evtx.Evtx(
-                    #         filename=path.join(sysmon_dest_name, sysmon_file_name),
-                    #     ) as log:
-                    #         for record in log.records():
-                    #             event = record.lxml()
-                    #             soup = BeautifulSoup(
-                    #                 etree.tostring(event), features="xml"
-                    #             )
-                    #             print(soup.find("TimeCreated").get("SystemTime"))  # type: ignore
-                    #             payload = {"event": soup.__str__()}
-                    #             await socket.send(
-                    #                 message=json.dumps(payload), text=True
-                    #             )
-                    #             await socket.recv()
-
-                    #     print("reading logs...")
-                    # currentchunk = log.get_file_header().current_chunk()
-                    # await readandsendlog(currentchunk)
                     def receive_event(action, context, event_handle):
                         if action == win32evtlog.EvtSubscribeActionDeliver:
                             event = win32evtlog.EvtRender(
@@ -146,3 +98,49 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+# async def cuteventfromtoday():
+#     with Evtx.Evtx(
+#         filename=path.join(sysmon_dest_name, sysmon_file_name),
+#     ) as log:
+#         for record in log.records():
+#             event = record.lxml()
+#             soup = BeautifulSoup(
+#                 etree.tostring(event), features="xml"
+#             )
+#             timecreated = str(
+#                 soup.find("TimeCreated").get("SystemTime")  # type:ignore
+#             )  # type: ignore
+#             timecreated_date = timecreated.split(" ")[0]
+#             timecreated_date_split = timecreated_date.split("-")
+#             year = int(timecreated_date_split[0])
+#             month = int(timecreated_date_split[1])
+#             day = int(timecreated_date_split[2])
+#             datetime_timecreated = datetime.datetime(
+#                 year=year, month=month, day=day
+#             )
+#             if datetime_timecreated.date() < today:
+#                 print(timecreated)
+#                 continue
+#             print(datetime_timecreated.date())
+#             print(today)
+#         pass
+
+# async def readandsendlog():
+#     with Evtx.Evtx(
+#         filename=path.join(sysmon_dest_name, sysmon_file_name),
+#     ) as log:
+#         for record in log.records():
+#             event = record.lxml()
+#             soup = BeautifulSoup(
+#                 etree.tostring(event), features="xml"
+#             )
+#             print(soup.find("TimeCreated").get("SystemTime"))  # type: ignore
+#             payload = {"event": soup.__str__()}
+#             await socket.send(
+#                 message=json.dumps(payload), text=True
+#             )
+#             await socket.recv()
+
+#     print("reading logs...")
+# currentchunk = log.get_file_header().current_chunk()
+# await readandsendlog(currentchunk)
